@@ -1,0 +1,66 @@
+#coding=utf-8
+
+import json
+import urllib.request
+
+api_url = "http://openapi.tuling123.com/openapi/api/v2"
+json_path = 'req.json'
+
+
+class TuringDome(object):
+    def __init__(self,json_path="",api_url=""):
+        self.json_path = json_path
+        self.api_url = api_url
+        self.text_input = input('请输入我的问话\n我：')
+
+    def readJson(self):
+        '''获取json文件'''
+        with open(self.json_path,'r',encoding='utf-8') as f_json:
+            json_data = json.load(f_json)
+        return json_data
+
+    def textInput(self):
+        '''用变量text_input替换text的value值'''
+        req = self.readJson()
+        req['perception']['inputText']['text'] = self.text_input
+        return req
+
+    def dumpsJson(self):
+        '''将json字符串转化成dict格式'''
+        req = self.textInput()
+        req = json.dumps(req,sort_keys=True,indent=4,).encode('utf8')
+        return req
+
+    def urllibRequestResponse(self):
+        req = self.dumpsJson()
+        http_post = urllib.request.Request(self.api_url, data=req, headers={'content-type': 'application/json'})
+        print(http_post._data)
+        response = urllib.request.urlopen(http_post)# 在urlopen()方法中传入字符串格式的url地址，则此方法会访问目标网址，然后返回访问的结果。
+        response_str = response.read().decode('utf8')
+        response_dict = json.loads(response_str) # 将字符串response_str转成字典
+        return response_dict
+
+    def getTuringResponse(self):
+        '''取得机器人返回的语句并输出'''
+        response_dict = self.urllibRequestResponse()
+        intent_code = response_dict.get('intent')['code']
+        results_text = response_dict.get('results')[0]['values']['text']
+        print('Turing的回答：')
+        print('code：' + str(intent_code))
+        print('text：' + results_text)
+
+    def talkToTheTuring(self):
+        #self.text_input = input('请输入我的问话\n我：')
+        while True:
+            if self.text_input != "exit:":
+                self.getTuringResponse()
+                self.text_input = input('请输入我的问话\n我：')
+            else:
+                print("*****结束对话！*****")
+                break
+
+if __name__ == '__main__':
+    #pass
+    td = TuringDome(json_path=json_path,api_url=api_url)
+    td.talkToTheTuring()
+

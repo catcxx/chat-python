@@ -1,0 +1,49 @@
+# -*- coding:utf-8 -*-
+import requests
+import json
+import urllib.request
+
+api_url = "http://www.tuling123.com/openapi/api/v2"
+json_path = 'req.json'
+
+def send_msg(msg):
+    print("---inside send_msg----")
+    data = urllibRequestResponse(msg)
+    
+    return data
+
+def readJson(json_path):
+    '''获取json文件'''
+    with open(json_path,'r',encoding='utf-8') as f_json:
+        json_data = json.load(f_json)
+    return json_data
+
+def textInput(json_path,msg):
+    '''用变量msg替换text的value值'''
+    req = readJson(json_path)
+    req['perception']['inputText']['text'] = msg
+    return req
+
+def dumpsJson(json_path,input):
+    '''将json字符串转化成dict格式'''
+    req = textInput(json_path,input)
+    req = json.dumps(req,sort_keys=True,indent=4,).encode('utf8')
+    return req
+
+def urllibRequestResponse(msg):
+    req = dumpsJson(json_path,msg)
+    http_post = urllib.request.Request(api_url, data=req, headers={'content-type': 'application/json'})
+    response = urllib.request.urlopen(http_post)# 在urlopen()方法中传入字符串格式的url地址，则此方法会访问目标网址，然后返回访问的结果。
+    response_str = response.read().decode('utf8')
+    response_dict = json.loads(response_str) # 将字符串response_str转成字典
+    return response_dict
+
+def getTuringResponse(self):
+    '''取得机器人返回的语句并输出'''
+    response_dict = self.urllibRequestResponse()
+    intent_code = response_dict.get('intent')['code']
+    results_text = response_dict.get('results')[0]['values']['text']
+    print('Turing的回答：')
+    print('code：' + str(intent_code))
+    print('text：' + results_text)
+
