@@ -10,4 +10,6 @@ RUN apk add  --virtual .build-deps g++ python3-dev libffi-dev openssl-dev && \
     if [ ! -e /usr/bin/python ]; then ln -sf python3 /usr/bin/python ; fi && \
     pip3 install --upgrade pip setuptools -i https://pypi.tuna.tsinghua.edu.cn/simple
 RUN pip3 install --trusted-host e.pypi.python.org -i https://pypi.tuna.tsinghua.edu.cn/simple -r requirements.txt
-CMD ["flask", "run"]
+
+ENV FLASK_APP /app/chat/app.py
+CMD ["flask", "run","-h","0.0.0.0"]

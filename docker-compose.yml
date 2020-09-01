@@ -1,0 +1,8 @@
+version: '2'
+services:
+    python-chatapp:
+      build: .
+      ports:
+        - "329:5000"
+      volumes:
+        - .:/app
